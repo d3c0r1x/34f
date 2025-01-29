@@ -1,58 +1,39 @@
+import time
 import logging
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error
-from config import config
+import numpy as np
+from sklearn.linear_model import LinearRegression
 
-# Настройка логирования
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+class MLModel:
+    def __init__(self):
+        self.model = LinearRegression()
+        self.logger = logging.getLogger('MLModel')
+        logging.basicConfig(level=logging.INFO)
 
-def load_data(pair):
-    """
-    Загрузка исторических данных для пары.
-    """
-    data = pd.read_csv(f'data/{pair}.csv')
-    return data
+    def train(self):
+        while True:
+            try:
+                historical_data = self.fetch_historical_data()
+                self.fit_model(historical_data)
+            except Exception as e:
+                self.logger.error(f"Error in training ML model: {e}")
+            time.sleep(3600)  # Обновлять модель каждые час
 
-def preprocess_data(data):
-    """
-    Предобработка данных.
-    """
-    data['Date'] = pd.to_datetime(data['Date'])
-    data.set_index('Date', inplace=True)
-    return data
+    def fetch_historical_data(self):
+        # Логика получения исторических данных
+        return np.random.rand(100, 5)  # Пример данных
 
-def train_model(data):
-    """
-    Обучение модели машинного обучения.
-    """
-    features = data.drop(columns=['Close'])
-    target = data['Close']
+    def fit_model(self, data):
+        X = data[:, :-1]
+        y = data[:, -1]
+        self.model.fit(X, y)
+        self.logger.info("ML model trained")
 
-    X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-
-    predictions = model.predict(X_test)
-    mse = mean_squared_error(y_test, predictions)
-    logger.info(f"Среднеквадратичная ошибка модели: {mse}")
-
-    return model
-
-def predict_prices(model, new_data):
-    """
-    Прогнозирование цен с помощью обученной модели.
-    """
-    predictions = model.predict(new_data)
-    return predictions
+    def predict(self, market_data):
+        # Логика предсказания рыночных данных
+        predictions = self.model.predict(market_data)
+        self.logger.info(f"Predicted prices: {predictions}")
+        return predictions
 
 if __name__ == "__main__":
-    pair = 'BTC/USD'
-    data = load_data(pair)
-    data = preprocess_data(data)
-    model = train_model(data)
-    new_data = data.tail(10).drop(columns=['Close'])
-    predictions = predict_prices(model, new_data)
-    logger.info(f"Прогнозные цены для пары {pair}: {predictions}")
+    ml_model = MLModel()
+    ml_model.train()
