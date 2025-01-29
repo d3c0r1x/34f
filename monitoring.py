@@ -1,46 +1,34 @@
-import logging
 import time
-from core import get_exchange_data, get_all_pairs
-from config import config
+import logging
+from websocket_handler import WebSocketHandler
 
-# Настройка логирования
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+class Monitoring:
+    def __init__(self, websocket_handler):
+        self.websocket_handler = websocket_handler
+        self.logger = logging.getLogger('Monitoring')
+        logging.basicConfig(level=logging.INFO)
 
-def monitor_exchanges():
-    """
-    Мониторинг состояния бирж.
-    """
-    exchanges = config['exchanges']
-    all_pairs = get_all_pairs(exchanges)
+    def monitor(self):
+        while True:
+            try:
+                market_data = self.websocket_handler.get_market_data()
+                self.check_market_conditions(market_data)
+                self.log_status()
+            except Exception as e:
+                self.logger.error(f"Error in monitoring: {e}")
+            time.sleep(config['monitoring_interval'])  # Проверять каждые 1800 секунд
 
-    for exchange_name, exchange_config in exchanges.items():
-        for pair in all_pairs:
-            for account in exchange_config['accounts']:
-                try:
-                    exchange_data = get_exchange_data(exchange_name, pair, account)
-                    if not exchange_data:
-                        logger.warning(f"Нет данных для биржи {exchange_name} и пары {pair}")
-                        continue
+    def check_market_conditions(self, market_data):
+        # Логика проверки рыночных условий
+        if market_data['volatility'] > 0.05:
+            self.logger.warning("High volatility detected")
+        else:
+            self.logger.info("Market conditions are stable")
 
-                    buy_price = exchange_data.get('buy_price', 0)
-                    sell_price = exchange_data.get('sell_price', 0)
-
-                    if not buy_price or not sell_price:
-                        logger.warning(f"Нет данных о ценах для биржи {exchange_name} и пары {pair}")
-
-                except Exception as e:
-                    logger.error(f"Ошибка при мониторинге биржи {exchange_name}: {e}")
-
-def run_monitoring():
-    """
-    Запуск мониторинга.
-    """
-    while True:
-        logger.info("Запуск мониторинга бирж...")
-        monitor_exchanges()
-        logger.info("Мониторинг бирж завершен.")
-        time.sleep(config['monitoring_interval'])
+    def log_status(self):
+        self.logger.info("Monitoring is running")
 
 if __name__ == "__main__":
-    run_monitoring()
+    websocket_handler = WebSocketHandler()
+    monitoring = Monitoring(websocket_handler)
+    monitoring.monitor()
