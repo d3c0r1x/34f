@@ -1,42 +1,67 @@
-import logging
 import time
-import yaml
-from config import config
-from testing import run_tests
-from core import update_exchange_configs
+import threading
+from websocket_handler import WebSocketHandler
+from arbitrage import Arbitrage
+from ml_model import MLModel
+from profit_optimizer import ProfitOptimizer
+from security import Security
+from log_analysis import LogAnalysis
+from performance import Performance
+from monitoring import Monitoring
+from telegram_bot import TelegramBot
 
-# Настройка логирования
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+class Automation:
+    def __init__(self):
+        self.websocket_handler = WebSocketHandler()
+        self.arbitrage = Arbitrage(self.websocket_handler)
+        self.ml_model = MLModel()
+        self.profit_optimizer = ProfitOptimizer()
+        self.security = Security()
+        self.log_analysis = LogAnalysis()
+        self.performance = Performance(self.arbitrage)
+        self.monitoring = Monitoring(self.websocket_handler)
+        self.telegram_bot = TelegramBot()
 
-def update_configurations():
-    """
-    Автоматическое обновление конфигурационных файлов.
-    """
-    try:
-        with open('config.yaml', 'r') as file:
-            current_config = yaml.safe_load(file)
+    def start_automation(self):
+        self.start_websocket()
+        self.start_arbitrage()
+        self.start_ml_training()
+        self.start_profit_optimization()
+        self.start_security_monitoring()
+        self.start_log_analysis()
+        self.start_performance_analysis()
+        self.start_market_monitoring()
+        self.start_telegram_notifications()
 
-        updated_config = update_exchange_configs(current_config)
-        if updated_config != current_config:
-            with open('config.yaml', 'w') as file:
-                yaml.safe_dump(updated_config, file)
-            logger.info("Конфигурационные файлы успешно обновлены.")
-        else:
-            logger.info("Конфигурационные файлы не требуют обновления.")
-    except Exception as e:
-        logger.error(f"Ошибка при обновлении конфигурационных файлов: {e}")
+    def start_websocket(self):
+        threading.Thread(target=self.websocket_handler.run, daemon=True).start()
 
-def run_periodic_tasks():
-    """
-    Выполнение периодических задач.
-    """
-    while True:
-        logger.info("Запуск периодических задач...")
-        update_configurations()
-        run_tests()
-        logger.info("Периодические задачи завершены.")
-        time.sleep(config['automation_interval'])
+    def start_arbitrage(self):
+        threading.Thread(target=self.arbitrage.run, daemon=True).start()
+
+    def start_ml_training(self):
+        threading.Thread(target=self.ml_model.train, daemon=True).start()
+
+    def start_profit_optimization(self):
+        threading.Thread(target=self.profit_optimizer.optimize, daemon=True).start()
+
+    def start_security_monitoring(self):
+        threading.Thread(target=self.security.monitor, daemon=True).start()
+
+    def start_log_analysis(self):
+        threading.Thread(target=self.log_analysis.analyze_logs, daemon=True).start()
+
+    def start_performance_analysis(self):
+        threading.Thread(target=self.performance.analyze_performance, daemon=True).start()
+
+    def start_market_monitoring(self):
+        threading.Thread(target=self.monitoring.monitor, daemon=True).start()
+
+    def start_telegram_notifications(self):
+        threading.Thread(target=self.telegram_bot.send_status, daemon=True).start()
 
 if __name__ == "__main__":
-    run_periodic_tasks()
+    automation = Automation()
+    automation.start_automation()
+    while True:
+        time.sleep(config['automation_interval'])
