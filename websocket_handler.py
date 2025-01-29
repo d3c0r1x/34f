@@ -1,48 +1,45 @@
+import time
 import logging
-import asyncio
-import websockets
-from config import config
+import websocket
+import json
 
-# Настройка логирования
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+class WebSocketHandler:
+    def __init__(self):
+        self.ws = None
+        self.market_data = {}
+        self.logger = logging.getLogger('WebSocketHandler')
+        logging.basicConfig(level=logging.INFO)
 
-async def handle_websocket(uri, pair, account):
-    """
-    Обработка подключения к WebSocket.
-    """
-    async with websockets.connect(uri) as websocket:
-        while True:
-            message = await websocket.recv()
-            logger.info(f"Получено сообщение: {message}")
-            # Обработка сообщения и обновление данных
+    def run(self):
+        for exchange_name, exchange_config in config['exchanges'].items():
+            self.ws = websocket.WebSocketApp(exchange_config['websocket_uri'],
+                                            on_message=self.on_message,
+                                            on_error=self.on_error,
+                                            on_close=self.on_close)
+            self.logger.info(f"WebSocket started for {exchange_name}")
+            self.ws.run_forever()
 
-def start_websocket_listener(exchange_name, pair, account):
-    """
-    Запуск WebSocket-слушателя для биржи.
-    """
-    uri = config['exchanges'][exchange_name].get('websocket_uri')
-    if not uri:
-        logger.warning(f"WebSocket URI не указан для биржи {exchange_name}")
-        return
+    def on_message(self, ws, message):
+        try:
+            data = json.loads(message)
+            self.market_data.update(data)
+            self.logger.info(f"Received market data: {data}")
+        except Exception as e:
+            self.logger.error(f"Error parsing message: {e}")
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(handle_websocket(uri, pair, account))
+    def on_error(self, ws, error):
+        self.logger.error(f"WebSocket error: {error}")
 
-def run_websocket_listeners():
-    """
-    Запуск всех WebSocket-слушателей.
-    """
-    exchanges = config['exchanges']
-    all_pairs = get_all_pairs(exchanges)
+    def on_close(self, ws, close_status_code, close_msg):
+        self.logger.info("WebSocket closed")
 
-    for exchange_name, exchange_config in exchanges.items():
-        for pair in all_pairs:
-            for account in exchange_config['accounts']:
-                listener_thread = Thread(target=start_websocket_listener, args=(exchange_name, pair, account))
-                listener_thread.daemon = True
-                listener_thread.start()
+    def get_market_data(self):
+        return self.market_data
+
+    def execute_trade(self, trade):
+        # Логика выполнения сделки
+        self.logger.info(f"Executing trade: {trade}")
 
 if __name__ == "__main__":
-    run_websocket_listeners()
+    websocket_handler = WebSocketHandler()
+    websocket_handler.run()
