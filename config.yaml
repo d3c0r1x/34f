@@ -50,7 +50,6 @@ exchanges:
         secret_key: YOUR_GATEIO_SECRET_KEY_1
       - api_key: YOUR_GATEIO_API_KEY_2
         secret_key: YOUR_GATEIO_SECRET_KEY_2
-
 min_profit_margin: 0.5
 available_funds: 10000
 max_trade_amount: 1
