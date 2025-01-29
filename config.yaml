@@ -1,0 +1,66 @@
+exchanges:
+  okx:
+    websocket_uri: wss://ws.okx.com:8443/ws/v5/public
+    accounts:
+      - api_key: YOUR_OKX_API_KEY_1
+        secret_key: YOUR_OKX_SECRET_KEY_1
+        passphrase: YOUR_OKX_PASSPHRASE_1
+      - api_key: YOUR_OKX_API_KEY_2
+        secret_key: YOUR_OKX_SECRET_KEY_2
+        passphrase: YOUR_OKX_PASSPHRASE_2
+  bybit:
+    websocket_uri: wss://stream.bybit.com/realtime
+    accounts:
+      - api_key: YOUR_BYBIT_API_KEY_1
+        secret_key: YOUR_BYBIT_SECRET_KEY_1
+      - api_key: YOUR_BYBIT_API_KEY_2
+        secret_key: YOUR_BYBIT_SECRET_KEY_2
+  huobi:
+    websocket_uri: wss://api.huobi.pro/ws
+    accounts:
+      - api_key: YOUR_HUOBI_API_KEY_1
+        secret_key: YOUR_HUOBI_SECRET_KEY_1
+      - api_key: YOUR_HUOBI_API_KEY_2
+        secret_key: YOUR_HUOBI_SECRET_KEY_2
+  bitget:
+    websocket_uri: wss://ws.bitget.com/mix/v1/stream
+    accounts:
+      - api_key: YOUR_BITGET_API_KEY_1
+        secret_key: YOUR_BITGET_SECRET_KEY_1
+      - api_key: YOUR_BITGET_API_KEY_2
+        secret_key: YOUR_BITGET_SECRET_KEY_2
+  ftx:
+    websocket_uri: wss://ftx.com/ws/
+    accounts:
+      - api_key: YOUR_FTX_API_KEY_1
+        secret_key: YOUR_FTX_SECRET_KEY_1
+      - api_key: YOUR_FTX_API_KEY_2
+        secret_key: YOUR_FTX_SECRET_KEY_2
+  deribit:
+    websocket_uri: wss://www.deribit.com/ws/api/v2
+    accounts:
+      - api_key: YOUR_DERIBIT_API_KEY_1
+        secret_key: YOUR_DERIBIT_SECRET_KEY_1
+      - api_key: YOUR_DERIBIT_API_KEY_2
+        secret_key: YOUR_DERIBIT_SECRET_KEY_2
+  gateio:
+    websocket_uri: wss://api.gateio.ws/ws/v4/
+    accounts:
+      - api_key: YOUR_GATEIO_API_KEY_1
+        secret_key: YOUR_GATEIO_SECRET_KEY_1
+      - api_key: YOUR_GATEIO_API_KEY_2
+        secret_key: YOUR_GATEIO_SECRET_KEY_2
+
+min_profit_margin: 0.5
+available_funds: 10000
+max_trade_amount: 1
+check_interval: 60
+automation_interval: 3600
+stop_loss_percentage: 0.02
+take_profit_percentage: 0.05
+monitoring_interval: 1800
+performance_interval: 3600
+telegram:
+  bot_token: YOUR_TELEGRAM_BOT_TOKEN
+  chat_id: YOUR_TELEGRAM_CHAT_ID
+  status_interval: 3600
