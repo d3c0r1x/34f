@@ -1,30 +1,24 @@
 import logging
 import time
-from telegram import Bot
-from config import config
+import telebot
 
-# Настройка логирования
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+class TelegramBot:
+    def __init__(self):
+        self.bot = telebot.TeleBot(config['telegram']['bot_token'])
+        self.chat_id = config['telegram']['chat_id']
+        self.logger = logging.getLogger('TelegramBot')
+        logging.basicConfig(level=logging.INFO)
 
-def send_message(message):
-    """
-    Отправка сообщения в Telegram.
-    """
-    bot_token = config['telegram']['bot_token']
-    chat_id = config['telegram']['chat_id']
-    bot = Bot(token=bot_token)
-    bot.send_message(chat_id=chat_id, text=message)
-    logger.info(f"Сообщение отправлено: {message}")
-
-def monitor_bot_status():
-    """
-    Мониторинг состояния бота.
-    """
-    while True:
-        logger.info("Мониторинг состояния бота...")
-        send_message("Бот работает корректно.")
-        time.sleep(config['telegram']['status_interval'])
+    def send_status(self):
+        while True:
+            try:
+                status_message = "Bot is running and monitoring market conditions."
+                self.bot.send_message(self.chat_id, status_message)
+                self.logger.info("Status message sent to Telegram")
+            except Exception as e:
+                self.logger.error(f"Error sending status message: {e}")
+            time.sleep(config['telegram']['status_interval'])  # Отправлять статус каждые 3600 секунд
 
 if __name__ == "__main__":
-    monitor_bot_status()
+    telegram_bot = TelegramBot()
+    telegram_bot.send_status()
